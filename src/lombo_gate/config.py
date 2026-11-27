@@ -4,6 +4,7 @@ Every setting has a LOMBO_GATE_ prefix so it never collides with another contain
 A bad value stops the app at start-up with a message that names the variable.
 """
 
+import math
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
@@ -16,11 +17,17 @@ class ConfigError(Exception):
 
 @dataclass(frozen=True)
 class Config:
-    jellyfin_url: str
-    jellyfin_api_key: str
+    seerr_url: str
+    seerr_api_key: str
+    sonarr_url: str
+    sonarr_api_key: str
+    max_seasons: int
+    max_gb: float
+    quality: str
     webhook_url: str | None
     dry_run: bool
     interval_seconds: int
+    state_file: str
 
 
 def _truthy(value: str, name: str) -> bool:
@@ -35,26 +42,44 @@ def _truthy(value: str, name: str) -> bool:
 
 def from_env(env: dict[str, str]) -> Config:
     def get(name: str, default: str = "") -> str:
-        return (env.get(PREFIX + name) or default).strip()
+        return (env.get(PREFIX + name) or "").strip() or default
 
-    url = (get("JELLYFIN_URL") or "").strip().rstrip("/")
-    if urlparse(url).scheme not in {"http", "https"} or not urlparse(url).netloc:
-        raise ConfigError(f"{PREFIX}JELLYFIN_URL must be a full URL such as http://jellyfin:8096 (got {url!r})")
+    def url(name: str) -> str:
+        value = get(name).rstrip("/")
+        if urlparse(value).scheme not in {"http", "https"} or not urlparse(value).netloc:
+            raise ConfigError(f"{PREFIX}{name} must be a full URL such as http://host:1234 (got {value!r})")
+        return value
 
-    key = (get("JELLYFIN_API_KEY") or "").strip()
-    if not key or key == "changeme":
-        raise ConfigError(f"{PREFIX}JELLYFIN_API_KEY is not set. Create one in Jellyfin: Dashboard > API Keys.")
+    def key(name: str) -> str:
+        value = get(name)
+        if value in {"", "changeme"}:
+            raise ConfigError(f"{PREFIX}{name} is not set. Copy it from that app's settings page.")
+        return value
 
-    webhook = (get("WEBHOOK_URL") or "").strip() or None
+    def number(name: str, default: str, least: float) -> float:
+        try:
+            value = float(get(name, default))
+        except ValueError:
+            raise ConfigError(f"{PREFIX}{name} must be a number") from None
+        if not math.isfinite(value) or value < least:
+            raise ConfigError(f"{PREFIX}{name} must be at least {least:g}")
+        return value
+
+    webhook = get("WEBHOOK_URL") or None
     if webhook and urlparse(webhook).scheme not in {"http", "https"}:
         raise ConfigError(f"{PREFIX}WEBHOOK_URL must start with http:// or https:// (or be empty)")
 
-    try:
-        interval = int(get("INTERVAL_SECONDS", "3600"))
-    except ValueError:
-        raise ConfigError(f"{PREFIX}INTERVAL_SECONDS must be a whole number of seconds") from None
-    if interval < 60:
-        raise ConfigError(f"{PREFIX}INTERVAL_SECONDS must be at least 60")
-
-    # Safe by default: nothing changes anything until the person sets DRY_RUN=false.
-    return Config(url, key, webhook, _truthy(get("DRY_RUN", "true") or "true", "DRY_RUN"), interval)
+    return Config(
+        seerr_url=url("SEERR_URL"),
+        seerr_api_key=key("SEERR_API_KEY"),
+        sonarr_url=url("SONARR_URL"),
+        sonarr_api_key=key("SONARR_API_KEY"),
+        max_seasons=int(number("MAX_SEASONS", "5", 0)),
+        max_gb=number("MAX_GB", "125", 0),
+        quality=get("QUALITY", "WEBDL-1080p"),
+        webhook_url=webhook,
+        # Safe by default: nothing is approved until the person sets DRY_RUN=false.
+        dry_run=_truthy(get("DRY_RUN", "true"), "DRY_RUN"),
+        interval_seconds=int(number("INTERVAL_SECONDS", "60", 10)),
+        state_file=get("STATE_FILE", "/data/state.json"),
+    )

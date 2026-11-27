@@ -9,12 +9,14 @@ Start with `lombo-gate doctor`. Each line says what failed.
 
 | You see | It means | Fix |
 |---|---|---|
-| `[FAIL] settings: LOMBO_GATE_X ...` (exit 2) | A setting is missing or invalid. The message names it. | Fix that variable in `.env`; restart the container. |
-| `Jellyfin reachable: ... <urlopen error>` | The app cannot reach Jellyfin at that URL. | From inside the container the URL is not the one in your browser. Use the compose service name or the machine's LAN address; check the port and the shared network. |
-| `API key accepted: /System/Info: HTTP 401` | Jellyfin refused the key. | Create a new key (Dashboard, API Keys) and update `.env`. |
-| `HTTP 404` on a path | Your Jellyfin version has no such endpoint. | Check `https://your-server/api-docs/swagger`; adjust `jellyfin.py`. |
-| Doctor is fine but nothing alerts | Dry run is on, the webhook is empty, or `plan` has nothing to report. | Run `plan`. Set `LOMBO_GATE_DRY_RUN=false` only when ready. Check the webhook line in `doctor`. |
-| `webhook failed` | The webhook URL rejects the message. | Test it with `curl -X POST -H 'Content-Type: application/json' -d '{"content":"test"}' <url>`. |
+| `[FAIL] settings: LOMBO_GATE_X ...` (exit 2) | A setting is missing or invalid. | Fix it in `.env`; restart. |
+| `Seerr ...: HTTP 401` or `403` | Wrong API key. | Copy it again from Settings > General. |
+| `... urlopen error` | The URL is not reachable from the container. | Use the service name or LAN address; check the shared network. |
+| `HTTP 301` or `302` | The URL redirects (http to https, or a base path). | Use the final address. |
+| `Sonarr has no size for the quality` | `LOMBO_GATE_QUALITY` matches no quality with a size. | Use a name from Sonarr, Settings > Quality. |
+| Big requests download anyway | That user has auto-approve. | `doctor` names them; turn it off in Seerr. |
+| Nothing is approved | Dry run is on. | `plan`, then `LOMBO_GATE_DRY_RUN=false`. |
+| `[FAIL] state: cannot write` | No writable volume. | Mount one at `/data`. |
 
 Logs: `docker compose logs --tail 100 lombo-gate`. In loop mode a failed round is logged and the next
 one still runs, so look for `[FAIL]` lines. When you report a bug, include `doctor` output with the

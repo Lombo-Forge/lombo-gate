@@ -2,14 +2,18 @@
 #   docker compose -f compose.example.yaml up -d
 services:
   lombo-gate:
-    image: ghcr.io/lombo-forge/lombo-gate:latest   # or build: .
+    build: .   # no image is published yet
     container_name: lombo-gate
     restart: unless-stopped
     env_file: .env
     read_only: true
+    volumes:
+      - lombo-gate-data:/data
     mem_limit: 128m
-    # If Jellyfin is in another compose project, join its network:
+    # If Seerr and Sonarr are in another compose project, join its network:
     # networks: [media]
 # networks:
 #   media:
 #     external: true
+volumes:
+  lombo-gate-data:
