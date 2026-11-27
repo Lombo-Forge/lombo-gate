@@ -12,7 +12,7 @@ Ask, one question at a time, and use their answers (never assume a layout):
 3. **Limits:** how many seasons and how many GB may be approved without them? Which Sonarr quality do they usually download?
 4. **Optional alerts:** a Discord, Slack or similar webhook, or leave it empty.
 5. **Write `.env`** from `.env.example`. Keep `LOMBO_GATE_DRY_RUN=true`. Never print keys back.
-6. **Start and check:** `docker compose up -d --build`, then `lombo-gate doctor` inside it.
+6. **Start and check:** `docker compose up -d`, then `lombo-gate doctor` inside it.
 7. **Auto-approve:** have them turn it off in Seerr for the users `doctor` names, and for new users. Without this nothing is gated.
 8. **Show `lombo-gate plan`**, then set `LOMBO_GATE_DRY_RUN=false` only when they say so.
 

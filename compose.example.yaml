@@ -2,7 +2,7 @@
 #   docker compose -f compose.example.yaml up -d
 services:
   lombo-gate:
-    build: .   # no image is published yet
+    image: ghcr.io/lombo-forge/lombo-gate:latest   # or build: .
     container_name: lombo-gate
     restart: unless-stopped
     env_file: .env

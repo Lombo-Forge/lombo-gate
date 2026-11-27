@@ -52,9 +52,9 @@ The size is a rough guess: episodes x episode length x the preferred size per mi
 **First, in Seerr, turn off auto-approve** for the people the limits should apply to, and for new users. Seerr approves their requests instantly otherwise, before this app can see them.
 
 1. Copy `.env.example` to `.env` and fill in the Seerr and Sonarr URLs and API keys.
-2. Build and start it (no image is published yet):
+2. Start it:
    ```sh
-   docker compose -f compose.example.yaml up -d --build
+   docker compose -f compose.example.yaml up -d
    docker compose -f compose.example.yaml exec lombo-gate lombo-gate doctor
    ```
 
