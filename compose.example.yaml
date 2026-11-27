@@ -7,9 +7,13 @@ services:
     restart: unless-stopped
     env_file: .env
     read_only: true
+    volumes:
+      - lombo-gate-data:/data
     mem_limit: 128m
-    # If Jellyfin is in another compose project, join its network:
+    # If Seerr and Sonarr are in another compose project, join its network:
     # networks: [media]
 # networks:
 #   media:
 #     external: true
+volumes:
+  lombo-gate-data:

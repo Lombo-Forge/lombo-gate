@@ -8,19 +8,19 @@ Notes for an AI coding agent (or a person) working in this repo. `CLAUDE.md` pul
 LomboGate approves small Seerr requests by itself and holds big ones for the admin. It is a small Python 3.12 program, standard library only (add a
 dependency only when it clearly earns its place).
 
-**Skeleton:** `core.py`, the client and the settings are still the template's example. Read
-`docs/architecture.md` ("What it will do") before writing code.
+Rules and design are in `docs/architecture.md`.
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `src/lombo_gate/core.py` | The decisions. Pure functions: no network, disk or clock. Change the rules here. |
-| `src/lombo_gate/jellyfin.py` | The Jellyfin client. Add calls here. |
+| `src/lombo_gate/api.py` | The Seerr and Sonarr calls. Add calls here. |
+| `src/lombo_gate/state.py` | Which held requests were already announced. |
 | `src/lombo_gate/cli.py` | `doctor`, `plan`, `run`. The only place that does I/O and prints. |
 | `src/lombo_gate/config.py` | Settings from `LOMBO_GATE_*` environment variables. |
 | `src/lombo_gate/notify.py` | Webhook alerts. |
-| `tests/` | pytest, with a fake Jellyfin and webhook in `conftest.py`. |
+| `tests/` | pytest, with a fake Seerr, Sonarr and webhook in `conftest.py`. |
 | `scripts/leak-check.sh` | Fails when private or personal strings appear. CI runs it. |
 | `docs/` | One topic per file, each with a `## Contents` list. |
 
@@ -32,10 +32,10 @@ dependency only when it clearly earns its place).
   (one comment line), and `compose.example.yaml` if it needs passing through.
 - **Fail with a message, not a traceback.** Wrap outside calls; the loop survives one bad round.
 - **Never put private details in the repo:** real hostnames, IPs, webhook URLs, API keys, local
-  paths. Use `jellyfin.example.com`, `/mnt/media`, `changeme`. `scripts/leak-check.sh` enforces it;
+  paths. Use `seerr.example.com`, `/mnt/media`, `changeme`. `scripts/leak-check.sh` enforces it;
   patterns live in `scripts/leak-patterns.txt`.
 - Plain language in docs and messages. Call a PC used for encoding a "main PC with a discrete
-  graphics card". Never call anything "official" or imply the Jellyfin project made it.
+  graphics card". Never call anything "official" or imply the Seerr, Sonarr or Jellyfin projects made it.
 - The Lombo look (every icon has the Lombo L) is in `docs/branding.md`.
 
 ## Test
@@ -52,8 +52,8 @@ locally passes there. The tooling is the same in every Lombo-Forge repo: ruff fo
 pytest. Do not loosen a rule to make a change pass; fix the code, or say why in a comment next to a narrow `noqa`.
 
 Without Python installed: `docker run --rm -v "$PWD:/w" -w /w python:3.12-slim sh -c "pip install -q -e '.[dev]' && pytest -q"`.
-Tests use a fake server; before claiming a Jellyfin behaviour works, check it against a throwaway
-Jellyfin container, never someone's real server.
+Tests use a fake server; before claiming a Seerr or Sonarr behaviour works, check it against a throwaway
+container, never someone's real server.
 
 ## Working efficiently
 
