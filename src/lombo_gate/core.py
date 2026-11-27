@@ -37,14 +37,15 @@ def screen(request: Mapping[str, Any]) -> Decision | None:
     return None
 
 
-def mb_per_min(definitions: Sequence[Mapping[str, Any]], quality: str) -> float | None:
-    """Sonarr's preferred MB per minute for one quality, capped by its maximum. None if it has neither."""
+def mb_per_min(definitions: Sequence[Mapping[str, Any]], quality: str, unlimited: float) -> float | None:
+    """Sonarr's preferred MB per minute for one quality, capped by its maximum; `unlimited` when it sets neither.
+    None when Sonarr has no quality of that name (a typo must not approve anything)."""
     for d in definitions:
         if str((d.get("quality") or {}).get("name", "")).lower() == quality.lower():
             preferred, top = d.get("preferredSize") or 0, d.get("maxSize") or 0
             if top:
                 preferred = min(preferred, top) if preferred else top
-            return float(preferred) if preferred else None
+            return float(preferred) if preferred else unlimited
     return None
 
 

@@ -51,11 +51,11 @@ def test_rate_takes_preferred_capped_by_maximum():
     def d(preferred, top):
         return [{"quality": {"name": "WEBDL-1080p"}, "preferredSize": preferred, "maxSize": top}]
 
-    assert core.mb_per_min(d(60, 100), "webdl-1080p") == 60
-    assert core.mb_per_min(d(500, 100), "WEBDL-1080p") == 100
-    assert core.mb_per_min(d(None, 100), "WEBDL-1080p") == 100
-    assert core.mb_per_min(d(None, None), "WEBDL-1080p") is None
-    assert core.mb_per_min(d(60, 100), "Bluray-2160p") is None
+    assert core.mb_per_min(d(60, 100), "webdl-1080p", 7) == 60
+    assert core.mb_per_min(d(500, 100), "WEBDL-1080p", 7) == 100
+    assert core.mb_per_min(d(None, 100), "WEBDL-1080p", 7) == 100
+    assert core.mb_per_min(d(None, None), "WEBDL-1080p", 7) == 7  # Sonarr "unlimited"
+    assert core.mb_per_min(d(60, 100), "Bluray-2160p", 7) is None
 
 
 def test_auto_approvers_skips_admins_and_managers():
@@ -132,6 +132,14 @@ def test_one_odd_request_does_not_stall_the_rest(env, fake, capsys):
     assert main(["run"], {**env, **LIVE}) == 1
     assert fake.posts() == ["/api/v1/request/2/approve"]
     assert "request 1 left waiting" in capsys.readouterr().err
+
+
+def test_unlimited_sizes_use_the_fallback(env, fake, capsys):
+    fake.definitions = [{"quality": {"name": "WEBDL-1080p"}, "preferredSize": None, "maxSize": None}]
+    fake.pending = [tv(1, [1])]
+    assert main(["doctor"], env) == 0
+    assert main(["plan"], env) == 0
+    assert "would approve request 1" in capsys.readouterr().out
 
 
 def test_a_wrong_quality_name_approves_no_tv(env, fake):

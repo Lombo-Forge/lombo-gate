@@ -23,9 +23,9 @@ def _apis(cfg: Config) -> tuple[Api, Api]:
 
 
 def _rate(cfg: Config, sonarr: Api) -> float:
-    rate = core.mb_per_min(sonarr.get("/api/v3/qualitydefinition"), cfg.quality)
+    rate = core.mb_per_min(sonarr.get("/api/v3/qualitydefinition"), cfg.quality, cfg.mb_per_min)
     if rate is None:
-        raise ApiError(f"Sonarr has no size for the quality {cfg.quality!r}; check LOMBO_GATE_QUALITY")
+        raise ApiError(f"Sonarr has no quality called {cfg.quality!r}; check LOMBO_GATE_QUALITY")
     return rate
 
 

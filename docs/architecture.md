@@ -25,7 +25,7 @@ Seerr, Sonarr  <--  api.py  -->  cli.py  -->  core.py (decides)
   Exactly at a limit passes.
 - No season list means every season except specials.
 - Estimate: episodes x runtime (40 minutes if unknown) x Sonarr's preferred MB per minute for `QUALITY`, capped by
-  its maximum.
+  its maximum. A quality with neither ("unlimited") uses `MB_PER_MIN`; a name Sonarr does not know approves no TV.
 - A season Seerr does not list, or no episodes at all, means the size is unknown: held.
 - If Seerr, Sonarr or one request cannot be read, that request is left waiting and tried again.
 

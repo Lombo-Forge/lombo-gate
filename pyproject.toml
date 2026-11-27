@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lombo-gate"
-version = "0.1.0"
+version = "0.1.1"
 description = "Approves small Seerr requests by itself and holds big ones for the admin."
 readme = "README.md"
 requires-python = ">=3.12"
