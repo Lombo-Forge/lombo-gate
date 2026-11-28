@@ -24,6 +24,7 @@ class Config:
     max_seasons: int
     max_gb: float
     quality: str
+    mb_per_min: float
     webhook_url: str | None
     dry_run: bool
     interval_seconds: int
@@ -77,6 +78,7 @@ def from_env(env: dict[str, str]) -> Config:
         max_seasons=int(number("MAX_SEASONS", "5", 0)),
         max_gb=number("MAX_GB", "125", 0),
         quality=get("QUALITY", "WEBDL-1080p"),
+        mb_per_min=number("MB_PER_MIN", "60", 1),
         webhook_url=webhook,
         # Safe by default: nothing is approved until the person sets DRY_RUN=false.
         dry_run=_truthy(get("DRY_RUN", "true"), "DRY_RUN"),

@@ -45,7 +45,7 @@ Every round (each minute by default) it looks at the requests waiting in Seerr:
 
 You approve or decline held requests in Seerr as usual. It **never** declines or deletes anything, and it **does not look at what a title is about**: ratings and content are not checked.
 
-The size is a rough guess: episodes x episode length x the preferred size per minute that Sonarr holds for one quality. It does not know which quality profile a request will use. An announced season with no episodes yet counts as nothing.
+The size is a rough guess: episodes x episode length x the preferred size per minute that Sonarr holds for one quality (or `MB_PER_MIN`, 60, if Sonarr sets none). It does not know which quality profile a request will use. An announced season with no episodes yet counts as nothing.
 
 ## Install in a minute
 
